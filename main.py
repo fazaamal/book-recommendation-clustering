@@ -4,9 +4,9 @@ from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
 # Load the data
-def getModel():
+def recommend(book_name):
     users=pd.read_csv('./data/BX-Users.csv',sep=";",on_bad_lines='skip', encoding='latin-1')
-    books = pd.read_csv('./data/BX-Books.csv',sep=";",on_bad_lines='skip', encoding='latin-1')
+    books = pd.read_csv('./data/BX-Books.csv',sep=";",on_bad_lines='skip', encoding='latin-1', low_memory=False)
     rating=pd.read_csv('./data/BX-Book-Ratings.csv',sep=";",on_bad_lines='skip', encoding='latin-1')
 
     #Column renaming
@@ -27,11 +27,9 @@ def getModel():
     book_pivot=final_ratings.pivot_table(columns='user_id',index='title',values='rating') ## creating pivot table, user id vs book title, values will be ratings
     book_pivot.fillna(0,inplace=True) ## Fill na values to 0
     # print(book_pivot)
-
     model=NearestNeighbors(algorithm='brute') ## model
     model.fit(book_pivot)
-
-def reco(book_name):
+    
     book_id=np.where(book_pivot.index==book_name)[0][0]
     distances,suggestions=model.kneighbors(book_pivot.iloc[book_id,:].values.reshape(1,-1))
     # print(suggestions)
@@ -45,7 +43,7 @@ def reco(book_name):
     # for i in range(1,len(suggestions)):
     # print(book_pivot.index[suggestions[0]])
 
-reco('Reasonable Doubt')
+recommend('Reasonable Doubt')
 # print(books.head(2))
 # print(users.head(2))
 # print(rating.head(2))
